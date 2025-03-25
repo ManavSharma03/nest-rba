@@ -11,11 +11,16 @@ import {
   Patch,
   ParseIntPipe,
   Body,
+  NotFoundException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DocumentsService } from './documents.service';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, join } from 'path';
+import { createReadStream } from 'fs';
+import * as fs from 'fs';
+import { lookup } from 'mime-types';
+
 import {
   ApiConsumes,
   ApiBody,
@@ -35,7 +40,7 @@ import { UpdateDocumentDto } from './dto/document.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiTags('Documents')
 export class DocumentsController {
-  constructor(private readonly documentsService: DocumentsService) {}
+  constructor(private readonly documentsService: DocumentsService) { }
 
   @Post('upload')
   @Roles(UserRoles.admin, UserRoles.editor)
@@ -87,7 +92,17 @@ export class DocumentsController {
   @ApiOperation({ summary: 'Download a document' })
   async downloadDocument(@Param('id') id: string, @Res() res: Response) {
     const file = await this.documentsService.downloadDocument(+id);
-    res.sendFile(file.path, { root: './' });
+    // Use absolute path resolution
+    const filePath = join(process.cwd(), file.path);
+
+    if (!fs.existsSync(filePath)) {
+      throw new NotFoundException('File not found');
+    }
+    res.setHeader('Content-Disposition', `attachment; filename="${file.filename}"`);
+    res.setHeader('Content-Type', lookup(file.filename) || 'application/octet-stream');
+
+    const fileStream = createReadStream(filePath);
+    fileStream.pipe(res);
   }
 
   @Get()

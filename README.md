@@ -52,7 +52,8 @@ This project is a **NestJS-based backend system** that provides authentication, 
 
 The permissions system in this project allows fine-grained control over user access to different modules.
 
-### 🔹 Table Structure  
+### 🔹 Table Structure
+
 Each permission entry is linked to a specific user and defines access control for a specific module (feature).
 
 - **User-Specific Permissions**: Each user can have custom permissions set by an admin.
@@ -63,6 +64,28 @@ Each permission entry is linked to a specific user and defines access control fo
 - **JWT Authentication** is used for secure API access.
 - Users are assigned roles: `admin`, `user`, `editor`, `viewer`.
 - **Admin-only APIs**: User management and document deletion.
+
+# Database Seeding Script (`seed.ts`)
+
+## Purpose
+
+The `seed.ts` script is designed to **populate the database with dummy data** for testing and development purposes. It creates sample users and documents, ensuring a consistent dataset for debugging and validation.
+
+## What It Does
+
+- **Connects to PostgreSQL** using TypeORM.
+- **Generates 1000 dummy users** with random emails, hashed passwords, and different roles (`admin`, `user`, `editor`, `viewer`).
+- **Creates 200 random documents** with different file types and stores them in the `uploads/` directory.
+- **Stores document metadata** (filename, path, MIME type) in the database.
+- **Ensures the required directories exist** before saving files.
+
+## How to Run
+
+To execute the seeding script, use:
+
+````sh
+npm run seed
+
 
 ## Tech Stack
 
@@ -77,3 +100,4 @@ Each permission entry is linked to a specific user and defines access control fo
    ```sh
    git clone <repo-url>
    cd <project-directory>
+````
